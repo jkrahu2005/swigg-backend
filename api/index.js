@@ -1,25 +1,29 @@
-// api/index.js
-
 const express = require("express");
 const cors = require("cors");
 const serverless = require("serverless-http");
-const fetch = require("node-fetch"); // Required if Node < 18
+
+// ✅ Fix: Import fetch manually for Node.js
+const fetch = (...args) =>
+  import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 const app = express();
 
-app.use(cors({
-  origin: "*", // Use specific origin in production
-  methods: ["GET", "HEAD", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "Accept"],
-  exposedHeaders: ["Content-Length", "X-Request-Id"]
-}));
+// ✅ CORS Middleware
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "HEAD", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "Accept"],
+    exposedHeaders: ["Content-Length", "X-Request-Id"],
+  })
+);
 
-// ➤ Base health check
+// ✅ Health Check
 app.get("/", (req, res) => {
   res.send("✅ Swiggy Backend API is running");
 });
 
-// ➤ Restaurants list API
+// ✅ Get All Restaurants
 app.get("/api/restaurants", async (req, res) => {
   const swiggyAPI =
     "https://www.swiggy.com/dapi/restaurants/list/v5?lat=28.7040592&lng=77.10249019999999&is-seo-homepage-enabled=true";
@@ -40,7 +44,7 @@ app.get("/api/restaurants", async (req, res) => {
   }
 });
 
-// ➤ Restaurant menu API
+// ✅ Get Menu by Restaurant ID
 app.get("/api/restaurant-menu/:id", async (req, res) => {
   const { id } = req.params;
   const swiggyAPI = `https://www.swiggy.com/mapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=28.7040592&lng=77.10249019999999&restaurantId=${id}`;
@@ -61,5 +65,5 @@ app.get("/api/restaurant-menu/:id", async (req, res) => {
   }
 });
 
-// ✅ Export handler for Vercel
-module.exports = serverless(app);
+// ✅ Export for Vercel
+module.exports.handler = serverless(app);
