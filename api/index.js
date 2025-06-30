@@ -6,7 +6,7 @@ const fetch = require("node-fetch"); // ✅ Add this line
 const app = express();
 
 app.use(cors({
-  origin: '*',
+  origin: 'http://localhost:1234/restaurant',
   methods: ['GET', 'HEAD', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   exposedHeaders: ['Content-Length', 'X-Request-Id']
