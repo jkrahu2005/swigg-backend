@@ -2,28 +2,25 @@ const express = require("express");
 const cors = require("cors");
 const serverless = require("serverless-http");
 
-// ✅ Fix: Import fetch manually for Node.js
-const fetch = (...args) =>
-  import("node-fetch").then(({ default: fetch }) => fetch(...args));
+// ✅ Add fetch
+const fetch = (...args) => import("node-fetch").then(({ default: fetch }) => fetch(...args));
 
 const app = express();
 
-// ✅ CORS Middleware
-app.use(
-  cors({
-    origin: "*",
-    methods: ["GET", "HEAD", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Accept"],
-    exposedHeaders: ["Content-Length", "X-Request-Id"],
-  })
-);
+// ✅ Correct CORS middleware
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*"); // 👈 allow all origins
+  res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type,Authorization");
+  next();
+});
 
 // ✅ Health Check
 app.get("/", (req, res) => {
-  res.send("✅ Swiggy Backend API is running");
+  res.send("✅ Swiggy Backend API is live");
 });
 
-// ✅ Get All Restaurants
+// ✅ Get Restaurants
 app.get("/api/restaurants", async (req, res) => {
   const swiggyAPI =
     "https://www.swiggy.com/dapi/restaurants/list/v5?lat=28.7040592&lng=77.10249019999999&is-seo-homepage-enabled=true";
@@ -35,16 +32,15 @@ app.get("/api/restaurants", async (req, res) => {
         Accept: "application/json",
       },
     });
-
     const data = await response.json();
     res.json(data);
-  } catch (error) {
-    console.error("Error fetching restaurant list:", error);
-    res.status(500).json({ error: "Internal server error" });
+  } catch (err) {
+    console.error("❌ Error:", err);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
-// ✅ Get Menu by Restaurant ID
+// ✅ Get Menu
 app.get("/api/restaurant-menu/:id", async (req, res) => {
   const { id } = req.params;
   const swiggyAPI = `https://www.swiggy.com/mapi/menu/pl?page-type=REGULAR_MENU&complete-menu=true&lat=28.7040592&lng=77.10249019999999&restaurantId=${id}`;
@@ -56,14 +52,12 @@ app.get("/api/restaurant-menu/:id", async (req, res) => {
         Accept: "application/json",
       },
     });
-
     const data = await response.json();
     res.json(data);
-  } catch (error) {
-    console.error("Error fetching menu:", error);
-    res.status(500).json({ error: "Internal server error" });
+  } catch (err) {
+    console.error("❌ Error:", err);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
-// ✅ Export for Vercel
 module.exports.handler = serverless(app);
