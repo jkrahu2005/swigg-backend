@@ -2,6 +2,10 @@ const express = require("express");
 const cors = require("cors");
 const serverless = require("serverless-http");
 
+// 👇 Required: use fetch globally (works in Vercel)
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+global.fetch = fetch;
+
 const app = express();
 
 // ✅ CORS Setup

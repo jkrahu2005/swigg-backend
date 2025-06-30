@@ -2,12 +2,13 @@
   "name": "swiggy-backend",
   "version": "1.0.0",
   "scripts": {
-    "dev": "nodemon api/index.js", 
+    "dev": "nodemon api/index.js",
     "start": "node api/index.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0",
+    "node-fetch": "^3.3.2",
     "serverless-http": "^3.2.0"
   }
 }
