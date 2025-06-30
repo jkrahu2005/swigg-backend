@@ -3,9 +3,16 @@ const cors = require("cors");
 const serverless = require("serverless-http");
 
 const app = express();
-app.use(cors());
 
-// API 1
+// Enhanced CORS configuration
+app.use(cors({
+  origin: '*', // Explicitly set (default but good practice to specify)
+  methods: ['GET', 'HEAD', 'OPTIONS'], // Only allow necessary methods
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  exposedHeaders: ['Content-Length', 'X-Request-Id']
+}));
+
+// API 1 - Restaurants
 app.get("/api/restaurants", async (req, res) => {
   try {
     const response = await fetch(
@@ -14,6 +21,7 @@ app.get("/api/restaurants", async (req, res) => {
         headers: {
           "User-Agent": "Mozilla/5.0",
           Accept: "application/json",
+          // Consider adding more headers if needed
         },
       }
     );
@@ -25,7 +33,7 @@ app.get("/api/restaurants", async (req, res) => {
   }
 });
 
-// API 2
+// API 2 - Menu
 app.get("/api/restaurant-menu/:id", async (req, res) => {
   const { id } = req.params;
   try {
@@ -35,6 +43,7 @@ app.get("/api/restaurant-menu/:id", async (req, res) => {
         headers: {
           "User-Agent": "Mozilla/5.0",
           Accept: "application/json",
+          // Consider adding more headers if needed
         },
       }
     );
@@ -45,5 +54,8 @@ app.get("/api/restaurant-menu/:id", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+// Add OPTIONS handler for preflight requests
+app.options('*', cors());
 
 module.exports = serverless(app);
